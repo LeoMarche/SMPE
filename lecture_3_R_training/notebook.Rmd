@@ -1,0 +1,69 @@
+---
+title: "Drugs analysis"
+output: html_notebook
+---
+
+Load data:
+
+```{r}
+ds = read.csv("set1_flat.csv")
+ds
+```
+
+Plot Time data for both drugs:
+
+```{r}
+library(ggplot2)
+```
+
+
+```{r}
+ggplot(ds, aes(x=Alternative, y=Time, color=Alternative)) + geom_point() + theme_bw()
+```
+Compare data for both drugs:
+
+```{r}
+library(dplyr)
+```
+
+
+```{r}
+ds %>% group_by(Alternative) %>% summarize(mean=mean(Time), sd=sd(Time), min=min(Time), max=max(Time), incert=sd(Time)/sqrt(n()) ,num=n()) -> tds
+tds
+```
+
+Now a bit harder:
+
+```{r}
+ds2 = read.csv("set1.csv")
+ds2
+```
+
+```{r}
+library(tidyr)
+library(dplyr)
+ds2 %>% gather(Alternative, Time) -> ds2clean
+ds2clean
+```
+
+
+```{r}
+ggplot(ds2clean, aes(x=Alternative, y=Time, color=Alternative)) + geom_point() + theme_bw()
+```
+
+```{r}
+ds2clean %>% group_by(Alternative) %>% summarize(mean=mean(Time), sd=sd(Time), min=min(Time), max=max(Time), incert=sd(Time)/sqrt(n()) ,num=n()) -> tds2
+tds2
+```
+```{r}
+ggplot(ds2clean, aes(x=Alternative, y=Time, color=Alternative)) + geom_jitter(alpha=0.25, width=0.2) + theme_bw()
+```
+```{r}
+ggplot(ds2clean, aes(x=Alternative, y=Time, color=Alternative)) + geom_boxplot() + geom_jitter(alpha=0.25, width=0.2) + theme_bw()
+```
+```{r}
+library("Rmisc")
+ds2c <- summarySE(ds2clean, measurevar="Time", groupvars=c("Alternative"))
+ds2c
+ggplot(ds2c, aes(x=Alternative, y=Time, color=Alternative)) + geom_point() + geom_errorbar(aes(ymin=Time-se, ymax=Time+se)) + theme_bw()
+```
